@@ -5,9 +5,6 @@ import pickle
 import os
 from pathlib import Path
 
-def hello():
-    print("Hello from common")
-
 
 def get_baseline_data(file: str) :
     nba_initial = pd.read_csv(file, index_col=[0])
