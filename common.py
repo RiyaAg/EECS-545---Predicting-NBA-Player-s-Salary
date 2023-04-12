@@ -1,6 +1,9 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
+import pickle
+import os
+from pathlib import Path
 
 def hello():
     print("Hello from common")
@@ -73,7 +76,13 @@ def split_data(dataset: pd.DataFrame, num_years_test=3, time_based_split=True, t
     
     
     return X_train, X_test, y_train, y_test
+
+def get_nn() :
+    p = Path(os.path.abspath(__file__)).parent / 'models/saved_models/neural_network.model' 
+    return pickle.load(open(p, 'rb'))
     
+def get_nn_features() :
+    return ['MP', 'PTS', 'Age', 'games', 'games_started', 'PER', 'FTr', 'AST', 'STL', 'TRB', 'FT', '3P', 'FG']
     
     
     
