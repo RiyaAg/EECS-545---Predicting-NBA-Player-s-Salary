@@ -37,10 +37,10 @@ def add_prev_year_salary(nba_cleaned: pd.DataFrame):
     return nba_cleaned
 
 if __name__ == "__main__":
-    nba_cleaned = pd.read_csv('cleaned_data/base_cleaned.csv')
+    nba_cleaned = pd.read_csv('cleaned_data/external_cleaned.csv')
     nba_cleaned = add_prev_year_salary(nba_cleaned)
     
     
-    nba_cleaned.to_csv('cleaned_data/base_cleaned_prev_year_salary.csv')
+    nba_cleaned.to_csv('cleaned_data/external_cleaned_prev_year_salary.csv')
     
         
