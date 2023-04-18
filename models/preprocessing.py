@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
+from copy import deepcopy
 
 
 def hello():
@@ -10,9 +11,6 @@ def hello():
 def get_baseline_data(file: str) :
     nba_initial = pd.read_csv(file, index_col=[0])
     nba = nba_initial.dropna()
-    # nba['inflationAdjSalary'] = nba['inflationAdjSalary'].str.replace('$', '')
-    # nba['inflationAdjSalary'] = nba['inflationAdjSalary'].str.replace(',', '')
-    # nba['inflationAdjSalary'] = nba['inflationAdjSalary'].astype(int)
     nba['inflationAdjSalary_log'] = nba['inflationAdjSalary'].apply(lambda x: np.log(x))
     return nba
 
@@ -42,7 +40,10 @@ def get_cleaned_baseline_data(file: str, encoding=True):
 
 
 def add_log_y_values(dataset: pd.DataFrame):
+    # dataset['prevYearSalaryLog'] = dataset['prevYearSalary'].apply(lambda x: np.log(x))
     dataset['inflationAdjSalary_log'] = dataset['inflationAdjSalary'].apply(lambda x: np.log(x))
+    # dataset = dataset.drop(['inflationAdjSalary', 'salary', 'prevYearSalary', 'playerName'], axis=1)
+    dataset = dataset.drop(['inflationAdjSalary', 'salary', 'playerName'], axis=1)
     return dataset
 
 
@@ -50,6 +51,12 @@ def get_X_y_vals(dataset: pd.DataFrame):
     """Get X and y values for dataset"""
     nba_values = dataset.values
     
+    # X = nba_values[:, 1:-1]
+    # y = nba_values[:, -1]
+    X = deepcopy(dataset)
+    y = deepcopy(dataset)
+    
+
     X = nba_values[:, 1:-1]
     y = nba_values[:, -1]
     return X, y
