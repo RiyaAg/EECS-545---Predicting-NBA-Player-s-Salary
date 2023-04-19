@@ -136,9 +136,9 @@ def get_cleaned_baseline_data(prev_year_salary=False, encoding=False):
         features = features + [PREV_Y_SAL]
     
     
-    nba_initial = pd.read_csv(file, index_col=[0])
-    nba = nba_initial.dropna()
+    nba = pd.read_csv(file, index_col=[0])
     nba = nba[features]
+    nba = nba.dropna()
     
     if encoding:
         # One-hot encoding for the position
@@ -166,8 +166,8 @@ def get_cleaned_external_data(prev_year_salary=False, next_year_salary=False, en
         features = features + [NEXT_Y_SAL]
     
     nba = pd.read_csv(file)
-    nba = nba.dropna()
     nba = nba[features]
+    nba = nba.dropna()
     
     if encoding:
         nba = one_hot_encode(nba, 'position')
