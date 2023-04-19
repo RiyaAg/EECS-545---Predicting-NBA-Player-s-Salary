@@ -56,3 +56,54 @@ def get_next_year_external_data() :
     nba = nba.dropna()
     nba = nba.loc[:, (nba != 0).any(axis=0)]
     return nba
+
+import numpy as np
+from scipy import stats
+
+def confidence_interval_numpy(predicted_array, actual_array, alpha=0.95):
+    # Calculate the error between predicted and actual values
+    # error_array = np.sqrt(np.square(predicted_array - actual_array))
+    # error_array = predicted_array - actual_array
+    error_array = np.abs(predicted_array - actual_array)
+    
+    # Calculate the mean error and standard error of the mean (SEM) for each column
+    mean_error = error_array.mean(axis=0)
+    sem = error_array.std(axis=0, ddof=1) / np.sqrt(len(error_array)) 
+    # this is used as an approximation of the actual std. dev. because we 
+    # don't know the actual std. dev and are using an approximation we need to 
+    # use the t-distribution here instead of approximating the difference 
+    # between the sample mean and the poopulation mean with a normal distribution
+    # This confidence interval tells you how confident we are that the true RMSE value lies within the provided bounds
+
+    # Calculate the degrees of freedom (a t distribution thing)
+    dof = len(error_array) - 1
+
+    # Calculate the confidence interval using the t-distribution
+    t_distribution = stats.t.ppf((1 + alpha) / 2, dof)
+    margin_of_error = t_distribution * sem
+    confidence_interval = np.column_stack((mean_error - margin_of_error, mean_error + margin_of_error))
+
+    return confidence_interval
+    
+def bootstrap_confidence_interval(predicted, actual, alpha=0.95, n_samples=1000):
+    # Calculate the error between predicted and actual values
+    # error = np.sqrt(np.square(predicted - actual))
+    # error = predicted - actual
+    error = np.abs(predicted - actual)
+    # Initialize an empty dictionary to store confidence intervals
+    confidence_interval = dict()
+
+    # Iterate over columns
+    for i in range(error.shape[1]):
+        # Sample from the error values many times
+        bootstrap_samples = np.random.choice(error[:, i], (n_samples, len(error)))
+
+        # Calculate the mean error for each sample
+        bootstrap_means = np.mean(bootstrap_samples, axis=1)
+
+        # Calculate the confidence interval
+        lower_bound = np.percentile(bootstrap_means, (1 - alpha) / 2 * 100)
+        upper_bound = np.percentile(bootstrap_means, (1 + alpha) / 2 * 100)
+        confidence_interval[f"column_{i}"] = (lower_bound, upper_bound)
+
+    return confidence_interval
