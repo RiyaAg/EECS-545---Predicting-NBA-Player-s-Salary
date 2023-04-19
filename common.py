@@ -200,7 +200,7 @@ def get_X_y_vals(dataset: pd.DataFrame):
     y = deepcopy(dataset)
     
 
-    X = nba_values[:, 1:-1]
+    X = nba_values[:, :-1]
     y = nba_values[:, -1]
     return X, y
 
