@@ -35,6 +35,8 @@ def get_cleaned_baseline_data(file: str, encoding=True):
         
         # One-hot encoding for the team
         nba = one_hot_encode(nba, 'team')
+    else:
+        nba = nba.drop(['position', 'team'], axis=1)
     
     return nba
 
