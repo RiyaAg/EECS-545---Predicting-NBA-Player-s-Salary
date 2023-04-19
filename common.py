@@ -37,7 +37,7 @@ def get_base_features() :
     return ['MP', 'PTS', 'Age', 'games', 'games_started', 'PER', 'FTr', 'AST', 'STL', 'TRB', 'FT', '3P', 'FG', 'height', 'weight']
 
 def get_extern_features() :
-    return get_base_features() + ['startYear', 'all_star_total', 'all_star_enc', 'all_nba_enc', 'all_nba_total','draft_pick', 'champion', 'conference_champ', 
+    return get_base_features() + ['seasonStartYear', 'startYear', 'all_star_total', 'all_star_enc', 'all_nba_enc', 'all_nba_total','draft_pick', 'champion', 'conference_champ', 
        'mvp', 'mvp_rank','mvp_total', 'player_week_enc', 'player_week_total', 'dpoy','dpoy_rank', 'dpoy_total']
 
 def get_rf() :
