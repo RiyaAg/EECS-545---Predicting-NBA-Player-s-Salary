@@ -125,7 +125,7 @@ def one_hot_encode(data_frame: pd.DataFrame, category: str):
     return data_frame.join(one_hot)
 
 
-def get_cleaned_baseline_data(prev_year_salary=False, encoding=False):
+def get_cleaned_baseline_data(prev_year_salary=False, next_year_salary=False, encoding=False):
     """Get Cleaned Data from just the baseline dataset. If encoding is set to true, it will One-Hot-Encode the categorical features."""
     
     file = '../data/cleaned_data/base_cleaned.csv'
@@ -135,6 +135,9 @@ def get_cleaned_baseline_data(prev_year_salary=False, encoding=False):
         file = '../data/cleaned_data/base_cleaned_prev_year_salary.csv'
         features = features + [PREV_Y_SAL]
     
+    if next_year_salary:
+        file = '../data/cleaned_data/base_cleaned_next_year_salary.csv'
+        features = features + [NEXT_Y_SAL, P_NAME]
     
     nba = pd.read_csv(file, index_col=[0])
     nba = nba[features]
