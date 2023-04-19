@@ -42,7 +42,7 @@ def get_base_features() :
     return ['seasonStartYear', 'MP', 'PTS', 'Age', 'games', 'games_started', 'PER', 'FTr', 'AST', 'STL', 'TRB', 'FT', '3P', 'FG', 'height', 'weight', 'position', 'team', 'inflationAdjSalary']
 
 def get_extern_features() :
-    return get_base_features() + ['seasonStartYear', 'startYear', 'all_star_total', 'all_star_enc', 'all_nba_enc', 'all_nba_total','draft_pick', 'champion', 'conference_champ', 
+    return get_base_features() + ['startYear', 'all_star_total', 'all_star_enc', 'all_nba_enc', 'all_nba_total','draft_pick', 'champion', 'conference_champ', 
        'mvp', 'mvp_rank','mvp_total', 'player_week_enc', 'player_week_total', 'dpoy','dpoy_rank', 'dpoy_total']
 
 def get_rf() :
@@ -167,6 +167,7 @@ def get_cleaned_external_data(prev_year_salary=False, next_year_salary=False, en
     
     nba = pd.read_csv(file)
     nba = nba.dropna()
+    nba = nba.drop_duplicates()
     nba = nba[features]
     
     if encoding:
