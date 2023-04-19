@@ -3,10 +3,15 @@ import os
 from pathlib import Path
 import pandas as pd
 import numpy as np
+from scipy import stats
 import math
+from copy import deepcopy
+from sklearn.model_selection import train_test_split
+
 
 # Constants
 NEXT_Y_SAL = 'next_year_salary'
+PREV_Y_SAL = 'prevYearSalary'
 INF_ADJ_SAL = 'inflationAdjSalary'
 SZN_START_Y = 'seasonStartYear'
 P_NAME = 'playerName'
@@ -34,7 +39,7 @@ def get_nn() :
     return pickle.load(open(p, 'rb'))
 
 def get_base_features() :
-    return ['MP', 'PTS', 'Age', 'games', 'games_started', 'PER', 'FTr', 'AST', 'STL', 'TRB', 'FT', '3P', 'FG', 'height', 'weight']
+    return ['seasonStartYear', 'MP', 'PTS', 'Age', 'games', 'games_started', 'PER', 'FTr', 'AST', 'STL', 'TRB', 'FT', '3P', 'FG', 'height', 'weight', 'position', 'team', 'inflationAdjSalary']
 
 def get_extern_features() :
     return get_base_features() + ['seasonStartYear', 'startYear', 'all_star_total', 'all_star_enc', 'all_nba_enc', 'all_nba_total','draft_pick', 'champion', 'conference_champ', 
@@ -57,8 +62,6 @@ def get_next_year_external_data() :
     nba = nba.loc[:, (nba != 0).any(axis=0)]
     return nba
 
-import numpy as np
-from scipy import stats
 
 def confidence_interval_numpy(predicted_array, actual_array, alpha=0.95):
     # Calculate the error between predicted and actual values
@@ -107,3 +110,114 @@ def bootstrap_confidence_interval(predicted, actual, alpha=0.95, n_samples=1000)
         confidence_interval[f"column_{i}"] = (lower_bound, upper_bound)
 
     return confidence_interval
+
+
+
+
+# FROM PREPROCESSING
+
+
+def one_hot_encode(data_frame: pd.DataFrame, category: str):
+    """Create a one-hot encoding for a category"""
+    
+    one_hot = pd.get_dummies(data_frame[category])
+    data_frame = data_frame.drop(category, axis=1)
+    return data_frame.join(one_hot)
+
+
+def get_cleaned_baseline_data(prev_year_salary=False, encoding=False):
+    """Get Cleaned Data from just the baseline dataset. If encoding is set to true, it will One-Hot-Encode the categorical features."""
+    
+    file = '../data/cleaned_data/base_cleaned.csv'
+    features = get_base_features()
+    
+    if prev_year_salary:
+        file = '../data/cleaned_data/base_cleaned_prev_year_salary.csv'
+        features = features + [PREV_Y_SAL]
+    
+    
+    nba_initial = pd.read_csv(file, index_col=[0])
+    nba = nba_initial.dropna()
+    nba = nba[features]
+    
+    if encoding:
+        # One-hot encoding for the position
+        nba = one_hot_encode(nba, 'position')
+        
+        # One-hot encoding for the team
+        nba = one_hot_encode(nba, 'team')
+    else:
+        nba = nba.drop(['position', 'team'], axis=1)
+    
+    return nba
+
+
+def get_cleaned_external_data(prev_year_salary=False, next_year_salary=False, encoding=False):
+    """Get Cleaned External Data"""
+    
+    file = '../data/cleaned_data/external_cleaned.csv'
+    features = get_extern_features()
+    
+    if prev_year_salary:
+        file = '../data/cleaned_data/external_cleaned_prev_year_salary.csv'
+        features = features + [PREV_Y_SAL]
+    elif next_year_salary:
+        file = '../data/cleaned_data/external_cleaned_next_year_salary.csv'
+        features = features + [NEXT_Y_SAL]
+    
+    nba = pd.read_csv(file)
+    nba = nba.dropna()
+    nba = nba[features]
+    
+    if encoding:
+        nba = one_hot_encode(nba, 'position')
+        
+        nba = one_hot_encode(nba, 'team')
+    else:
+        nba = nba.drop(['position', 'team'], axis=1)
+        
+    return nba
+
+
+def add_log_y_values(dataset: pd.DataFrame):
+    # dataset['prevYearSalaryLog'] = dataset[PREV_Y_SAL].apply(lambda x: np.log(x))
+    dataset['inflationAdjSalary_log'] = dataset['inflationAdjSalary'].apply(lambda x: np.log(x))
+    # dataset = dataset.drop(['inflationAdjSalary', 'salary', PREV_Y_SAL, 'playerName'], axis=1)
+    dataset = dataset.drop(['inflationAdjSalary'], axis=1)
+    return dataset
+
+
+def get_X_y_vals(dataset: pd.DataFrame):
+    """Get X and y values for dataset"""
+    nba_values = dataset.values
+    
+    # X = nba_values[:, 1:-1]
+    # y = nba_values[:, -1]
+    X = deepcopy(dataset)
+    y = deepcopy(dataset)
+    
+
+    X = nba_values[:, 1:-1]
+    y = nba_values[:, -1]
+    return X, y
+
+
+def split_data(dataset: pd.DataFrame, num_years_test=3, time_based_split=True, test_proportion=0.25):
+    """Split data into training and testing sets"""
+    
+    if time_based_split:
+        latest_year = np.max(dataset['seasonStartYear'])
+
+        # Split dataset by the season start year
+        train_set = dataset[dataset['seasonStartYear'] <= latest_year - num_years_test]
+        test_set = dataset[dataset['seasonStartYear'] > latest_year - num_years_test]
+    
+        X_train, y_train = get_X_y_vals(train_set)
+        X_test, y_test = get_X_y_vals(test_set)
+    else:
+        
+        X, y = get_X_y_vals(dataset)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_proportion, random_state=42)
+    
+    
+    return X_train, X_test, y_train, y_test
