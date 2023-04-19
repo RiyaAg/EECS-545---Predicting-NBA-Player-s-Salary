@@ -163,7 +163,7 @@ def get_cleaned_external_data(prev_year_salary=False, next_year_salary=False, en
         features = features + [PREV_Y_SAL]
     elif next_year_salary:
         file = '../data/cleaned_data/external_cleaned_next_year_salary.csv'
-        features = features + [NEXT_Y_SAL]
+        features = features + [NEXT_Y_SAL, P_NAME]
     
     nba = pd.read_csv(file)
     nba = nba[features]
