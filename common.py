@@ -23,6 +23,8 @@ EXT_NEXT_Y_FILENAME = 'external_cleaned_next_year_salary.csv'
 def get_salary_class(salary: float, max: float, min:float) :
     num_classes = 10
     interval = (max-min)/num_classes
+    # for i in range(num_classes) :
+    #     print(i, min + i*interval, min + (i+1)*interval)
     return math.floor((salary - min)/interval)
 
 def get_baseline_data(file: str) :
