@@ -1,0 +1,11 @@
+Correlation MI,Linear Regression,Random Forest,XGBoost,Shap RF,Shap XB
+PTS,mvp_total,PTS,PTS,PTS,Age
+FG,dpoy,draft_pick,FT,draft_pick,draft_pick
+FT,FTr,all_star_total,games_started,age,MP
+all_start_total,mvp,age,all_start_total,all_star_total,games
+games_started,age,FG,TRB,FG,TRB
+player_week_total,dpoy_total,FT,PER,startYear,FT
+MP,PER,MP,draft_pick,TRb,PTS
+TRB,season_start_year,PER,player_week_total,PER,startYear
+PER,all_start_total,TRB,age,FT,games_started
+all_nba_total,height,seasonStartYear,seasonStartYear,games_started,PER
